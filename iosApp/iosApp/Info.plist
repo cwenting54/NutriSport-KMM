@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>GIDServerClientID</key>
+	<string>475333599388-uhj2d6eutadpul1eechd6rc7t20uihpq.apps.googleusercontent.com</string>
+	<key>GIDClientID</key>
+	<string>475333599388-rr9u25lqv7ggce7jkjk55as74p00o3g5.apps.googleusercontent.com</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>dev.nutrisport</string>
+				<string>com.googleusercontent.apps.475333599388-rr9u25lqv7ggce7jkjk55as74p00o3g5</string>
+			</array>
+			<key>CFBundleURLName</key>
+			<string></string>
+		</dict>
+	</array>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+</dict>
+</plist>
