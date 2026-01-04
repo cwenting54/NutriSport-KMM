@@ -23,6 +23,7 @@ class ProductsOverviewViewModel(
             }
             new.isError() -> new
             discounted.isError() -> discounted
+            popular.isError() -> popular
             else -> RequestState.Loading
         }
 

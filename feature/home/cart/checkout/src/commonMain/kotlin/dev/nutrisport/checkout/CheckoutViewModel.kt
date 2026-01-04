@@ -24,10 +24,11 @@ import dev.nutrisport.shared.domain.Product
 import dev.nutrisport.shared.util.PreferencesRepository
 import dev.nutrisport.shared.util.RequestState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -85,85 +86,109 @@ class CheckoutViewModel(
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun observeData() {
         viewModelScope.launch {
-            val customerFlow = customerRepository.readCustomerFlow()
-
-            val productsFlow = customerFlow.flatMapLatest { customerState ->
-                if (customerState.isSuccess()) {
-                    val productIds =
-                        customerState.getSuccessData().cart.map { it.productId }.toSet()
-                    if (productIds.isNotEmpty()) {
-                        productRepository.readProductsByIdsFlow(productIds.toList())
-                    } else {
-                        flowOf(RequestState.Success(emptyList()))
+            customerRepository.readCustomerFlow()
+                .flatMapLatest { customerState ->
+                    when (customerState) {
+                        is RequestState.Success -> observeProducts(customerState.data)
+                        is RequestState.Error ->
+                            flowOf(CombinedState.Error(customerState.message))
+                        RequestState.Loading, RequestState.Idle ->
+                            flowOf(CombinedState.Loading)
                     }
-                } else if (customerState.isError()) {
-                    flowOf(RequestState.Error(customerState.getErrorMessage()))
-                } else {
-                    flowOf(RequestState.Loading)
                 }
-            }
-
-            combine(customerFlow, productsFlow) { customerState, productsState ->
-                handleDataCombine(customerState, productsState)
-            }.collect()
+                .collect { state ->
+                    render(state)
+                }
         }
     }
 
-    private fun handleDataCombine(
-        customerState: RequestState<Customer>,
-        productsState: RequestState<List<Product>>
-    ) {
-        if (customerState.isError()) {
-            requestState = RequestState.Error(customerState.getErrorMessage())
-            return
-        }
-        if (productsState.isError()) {
-            requestState = RequestState.Error(productsState.getErrorMessage())
-            return
-        }
-        if (!customerState.isSuccess() || !productsState.isSuccess()) {
-            requestState = RequestState.Loading
-            return
-        }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun observeProducts(customer: Customer): Flow<CombinedState> {
+        val productIds = customer.cart.map { it.productId }.toSet()
 
-        val customer = customerState.getSuccessData()
-        val products = productsState.getSuccessData()
-
-        if (screenState.email.isBlank()) {
-            screenState = CheckoutScreenState(
-                id = customer.id,
-                firstName = customer.firstName,
-                lastName = customer.lastName,
-                email = customer.email,
-                city = customer.city,
-                postalCode = customer.postalCode,
-                address = customer.address,
-                phoneNumber = customer.phoneNumber,
-                country = Country.entries.firstOrNull { it.dialCode == customer.phoneNumber?.dialCode }
-                    ?: Country.Taiwan,
-                cart = customer.cart
+        if (productIds.isEmpty()) {
+            return flowOf(
+                CombinedState.Success(customer, emptyList())
             )
         }
 
-        val uiModels = customer.cart.mapNotNull { cartItem ->
-            val product = products.find { it.id == cartItem.productId }
+        return productRepository.readProductsByIdsFlow(productIds.toList())
+            .map { productState ->
+                when (productState) {
+                    is RequestState.Success ->
+                        CombinedState.Success(customer, productState.data)
 
-            product?.let {
-                CartItemUiModel(
-                    id = it.id,
-                    productId = it.id,
-                    productTitle = it.title,
-                    thumbnail = it.thumbnail,
-                    price = cartItem.price,
-                    weight = cartItem.weight,
-                    flavor = cartItem.flavor,
-                    quantity = cartItem.quantity
+                    is RequestState.Error ->
+                        CombinedState.Error(productState.message)
+
+                    RequestState.Loading,
+                    RequestState.Idle ->
+                        CombinedState.Loading
+                }
+            }
+            .catch { e ->
+                emit(CombinedState.Error(e.message ?: "Unknown Error"))
+            }
+
+    }
+
+    private fun render(state: CombinedState) {
+        when (state) {
+            is CombinedState.Loading -> {
+                requestState = RequestState.Loading
+            }
+
+            is CombinedState.Error -> {
+                requestState = RequestState.Error(state.message)
+            }
+
+            is CombinedState.Success -> {
+                updateScreenStateIfNeeded(state.customer)
+                requestState = RequestState.Success(
+                    buildCartUiModels(state.customer, state.products)
                 )
             }
         }
-
-        requestState = RequestState.Success(uiModels)
     }
+
+
+    private fun updateScreenStateIfNeeded(customer: Customer) {
+        if (screenState.email.isNotBlank()) return
+
+        screenState = CheckoutScreenState(
+            id = customer.id,
+            firstName = customer.firstName,
+            lastName = customer.lastName,
+            email = customer.email,
+            city = customer.city,
+            postalCode = customer.postalCode,
+            address = customer.address,
+            phoneNumber = customer.phoneNumber,
+            country = Country.entries.firstOrNull {
+                it.dialCode == customer.phoneNumber?.dialCode
+            } ?: Country.Taiwan,
+            cart = customer.cart
+        )
+    }
+
+    private fun buildCartUiModels(
+        customer: Customer,
+        products: List<Product>
+    ): List<CartItemUiModel> =
+        customer.cart.mapNotNull { cartItem ->
+            val product = products.find { it.id == cartItem.productId } ?: return@mapNotNull null
+
+            CartItemUiModel(
+                id = product.id,
+                productId = product.id,
+                productTitle = product.title,
+                thumbnail = product.thumbnail,
+                price = cartItem.price,
+                weight = cartItem.weight,
+                flavor = cartItem.flavor,
+                quantity = cartItem.quantity
+            )
+        }
 
     fun updateFirstName(value: String) {
         screenState = screenState.copy(firstName = value)
@@ -302,4 +327,13 @@ class CheckoutViewModel(
         )
     }
 
+}
+
+sealed interface CombinedState {
+    object Loading : CombinedState
+    data class Error(val message: String) : CombinedState
+    data class Success(
+        val customer: Customer,
+        val products: List<Product>
+    ) : CombinedState
 }

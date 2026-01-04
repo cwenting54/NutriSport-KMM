@@ -11,6 +11,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -40,19 +41,21 @@ class CategorySearchViewModel(
     @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
     val filteredProducts = searchQuery
         .debounce(500)
-        .flatMapLatest { query ->
-            if (query.isBlank()) products
-            else {
-                if (products.value.isSuccess()) {
-                    flowOf(
-                        RequestState.Success(
-                            products.value.getSuccessData()
-                                .filter {
-                                    it.title.lowercase().contains(query.lowercase())
-                                }
-                        )
-                    )
-                } else products
+        .combine(products) { query, productState ->
+            when (productState) {
+                is RequestState.Success -> {
+                    val data = productState.data
+
+                    if (query.isBlank()) {
+                        productState
+                    } else {
+                        val filtered = data.filter {
+                            it.title.contains(query, ignoreCase = true)
+                        }
+                        RequestState.Success(filtered)
+                    }
+                }
+                else -> productState
             }
         }
         .stateIn(
