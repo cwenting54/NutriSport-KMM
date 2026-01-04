@@ -63,6 +63,7 @@ import dev.nutrisport.shared.util.getScreenWidth
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import dev.nutrisport.shared.BebasNeueFont
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -174,8 +175,9 @@ fun HomeGraphScreen(
                             ) { destination ->
                                 Text(
                                     text = destination.title.uppercase(),
-                                    fontSize = FontSize.EXTRA_MEDIUM,
-                                    fontWeight = FontWeight.Bold,
+                                    fontSize = if (destination == BottomBarDestination.ProductOverview) FontSize.LARGE else FontSize.EXTRA_MEDIUM,
+                                    fontWeight = if (destination == BottomBarDestination.ProductOverview) FontWeight.Normal else FontWeight.Bold,
+                                    fontFamily = if (destination == BottomBarDestination.ProductOverview) BebasNeueFont() else null,
                                     color = TextPrimary
                                 )
                             }

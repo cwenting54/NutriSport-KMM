@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -16,13 +15,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import dev.nutrisport.shared.BebasNeueFont
 import dev.nutrisport.shared.FontSize
 import dev.nutrisport.shared.IconPrimary
 import dev.nutrisport.shared.Resources
@@ -60,12 +60,12 @@ fun ProfileScreen(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         containerColor = Surface,
         topBar = {
-            CenterAlignedTopAppBar(
+            TopAppBar(
                 title = {
                     Text(
-                        text = "My Profile",
-                        fontFamily = BebasNeueFont(),
-                        fontSize = FontSize.LARGE,
+                        text = "個人資料",
+                        fontSize = FontSize.EXTRA_MEDIUM,
+                        fontWeight = FontWeight.Bold,
                         color = TextPrimary
                     )
                 },
@@ -124,7 +124,7 @@ fun ProfileScreen(
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                         PrimaryButton(
-                            text = "Update",
+                            text = "更新",
                             icon = Resources.Icon.Checkmark,
                             enabled = isFormValid,
                             onClick = {

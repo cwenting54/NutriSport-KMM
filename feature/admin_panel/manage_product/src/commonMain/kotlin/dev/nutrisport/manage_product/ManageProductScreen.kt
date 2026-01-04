@@ -46,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -138,10 +139,10 @@ fun ManageProductScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = if (id == null) "New Product"
-                        else "Edit Product",
-                        fontFamily = BebasNeueFont(),
-                        fontSize = FontSize.LARGE,
+                        text = if (id == null) "新增商品"
+                        else "編輯商品",
+                        fontSize = FontSize.EXTRA_MEDIUM,
+                        fontWeight = FontWeight.Bold,
                         color = TextPrimary
                     )
                 },
@@ -180,7 +181,7 @@ fun ManageProductScreen(
                                     },
                                     text = {
                                         Text(
-                                            text = "Delete",
+                                            text = "刪除商品",
                                             color = TextPrimary,
                                             fontSize = FontSize.REGULAR
                                         )

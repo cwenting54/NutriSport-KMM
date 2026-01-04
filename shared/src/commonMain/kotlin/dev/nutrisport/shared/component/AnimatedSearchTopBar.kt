@@ -57,7 +57,7 @@ fun AnimatedSearchTopBar(
                         onSearch = {},
                         placeholder = {
                             Text(
-                                text = "Search here",
+                                text = "搜尋商品",
                                 fontSize = FontSize.EXTRA_REGULAR,
                                 color = TextPrimary
                             )
@@ -92,7 +92,7 @@ fun AnimatedSearchTopBar(
                 title = {
                     Text(
                         text = title,
-                        fontFamily = BebasNeueFont(),
+                        fontWeight = FontWeight.Bold,
                         fontSize = FontSize.EXTRA_MEDIUM,
                         color = TextPrimary
                     )
