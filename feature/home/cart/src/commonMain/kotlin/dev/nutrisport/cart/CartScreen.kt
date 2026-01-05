@@ -82,7 +82,7 @@ fun CartScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "$ ${if (totalAmount.isSuccess()) totalAmount.getSuccessData().formatAmount() else "0.00"}",
+                        text = "$ ${if (totalAmount.isSuccess()) totalAmount.getSuccessData().formatAmount() else "0.0"}",
                         fontSize = FontSize.EXTRA_MEDIUM,
                         color = TextPrimary,
                         fontFamily = BebasNeueFont(),
@@ -189,6 +189,6 @@ private fun Double.formatAmount(): String {
     val integerPart = parts[0]
     val fractionalPart = if (parts.size > 1) parts[1] else ""
     
-    val paddedFractional = fractionalPart.padEnd(2, '0').take(2)
+    val paddedFractional = fractionalPart.padEnd(1, '0').take(2)
     return "$integerPart.$paddedFractional"
 }
