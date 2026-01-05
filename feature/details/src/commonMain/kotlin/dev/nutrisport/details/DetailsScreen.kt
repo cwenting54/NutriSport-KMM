@@ -551,7 +551,8 @@ fun ProductOptionBottomSheet(
             PrimaryButton(
                 icon = Resources.Image.ShoppingCart,
                 text = "加入購物車",
-                enabled = if (selectedProduct.flavors?.isNotEmpty() == true)
+                enabled = if (selectedProduct.flavors
+                        ?.any { it.isNotBlank() } == true)
                     selectedFlavor != null
                 else true,
                 onClick = {
