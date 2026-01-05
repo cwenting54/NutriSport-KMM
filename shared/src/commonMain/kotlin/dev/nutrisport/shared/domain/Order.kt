@@ -61,7 +61,7 @@ enum class ShipStatus(
     val title: String
 ) {
     Pending(
-        title = "未出貨"
+        title = "待出貨"
     ),
     Shipped(
         title = "已出貨"
