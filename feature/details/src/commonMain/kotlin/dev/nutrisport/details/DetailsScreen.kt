@@ -221,6 +221,7 @@ fun DetailsScreen(
                 LoadingCard(modifier = Modifier.fillMaxSize())
             },
             onSuccess = { selectedProduct ->
+                // 加入購物車的選單
                 if (showProductOptionBottomSheet) {
                     ProductOptionBottomSheet(
                         selectedProduct = selectedProduct,
@@ -510,7 +511,8 @@ fun ProductOptionBottomSheet(
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp, vertical = 16.dp)
         ) {
-            if (selectedProduct.flavors?.isNotEmpty() == true) {
+            if (selectedProduct.flavors
+                    ?.any { it.isNotBlank() } == true) {
                 Text("口味", fontWeight = FontWeight.Bold, fontSize = 18.sp)
                 Spacer(Modifier.height(8.dp))
                 FlowRow(
