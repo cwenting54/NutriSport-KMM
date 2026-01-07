@@ -10,10 +10,13 @@
 ### 1. 核心功能模組 (Feature Layer) - `:feature`
 業務邏輯的核心，每個功能皆為獨立單元。
 * **`:feature:auth`**: 負責使用者認證。
-* **`:feature:home`**: 複合式首頁 UI (含商品總覽、分類)。
+* **`:feature:home`**: 複合式首頁 UI (含商品總覽、熱銷商品及促銷商品)。
 * **`:feature:details`**: 商品詳情與規格選擇。
 * **`:feature:cart`**: 購物車管理，透過 Firebase 監聽實現多裝置購物車同步。
-* **`:feature:profile`**: 使用者中心與訂單歷史。
+* **`:feature:categories`**: 商品分類。
+* **`:feature:profile`**: 會員資料。
+* **`:feature:order_list`**: 會員訂單紀錄。
+* **`:feature:favorite_list`**: 會員收藏商品清單。
 * **`:feature:admin_panel`**: 管理員後台 (商品管理)。
 
 ### 2. 雲端與數據層 (Cloud & Data Layer)
