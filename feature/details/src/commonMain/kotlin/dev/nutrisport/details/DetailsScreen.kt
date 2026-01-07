@@ -50,6 +50,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -364,40 +365,52 @@ fun DetailsScreen(
                                                 fontWeight = FontWeight.Bold
                                             )
                                         }
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            modifier = Modifier.clickable { showCommentScreen = true }
-                                        ) {
-                                            Text(
-                                                text = "查看更多",
-                                                fontSize = FontSize.REGULAR,
-                                                color = TextPrimary,
-                                                modifier = Modifier.alpha(Alpha.HALF)
-                                            )
-                                            Icon(
-                                                painter = painterResource(Resources.Icon.ForwardArrow),
-                                                contentDescription = "Star icon",
-                                                tint = IconPrimary,
-                                                modifier = Modifier.size(16.dp).alpha(Alpha.HALF)
-                                            )
+                                        if (commentsList.isNotEmpty()) {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                modifier = Modifier.clickable { showCommentScreen = true }
+                                            ) {
+                                                Text(
+                                                    text = "查看更多",
+                                                    fontSize = FontSize.REGULAR,
+                                                    color = TextPrimary,
+                                                    modifier = Modifier.alpha(Alpha.HALF)
+                                                )
+                                                Icon(
+                                                    painter = painterResource(Resources.Icon.ForwardArrow),
+                                                    contentDescription = "Star icon",
+                                                    tint = IconPrimary,
+                                                    modifier = Modifier.size(16.dp).alpha(Alpha.HALF)
+                                                )
+                                            }
                                         }
-
                                     }
-                                    CommentsList(
-                                        comments = commentsList.take(3),
-                                        onLikeClick = { commentId ->
-                                            viewModel.likeComment(
-                                                commentId = commentId,
-                                                onError = {
-                                                    scope.launch {
-                                                        snackbarHostState.showSnackbar(
-                                                            "更新失敗，請稍後再試"
-                                                        )
+                                    if (commentsList.isNotEmpty()) {
+                                        CommentsList(
+                                            comments = commentsList.take(3),
+                                            onLikeClick = { commentId ->
+                                                viewModel.likeComment(
+                                                    commentId = commentId,
+                                                    onError = {
+                                                        scope.launch {
+                                                            snackbarHostState.showSnackbar(
+                                                                "更新失敗，請稍後再試"
+                                                            )
+                                                        }
                                                     }
-                                                }
-                                            )
-                                        }
-                                    )
+                                                )
+                                            }
+                                        )
+                                    } else {
+                                        Text(
+                                            text = "尚未有評價",
+                                            fontSize = FontSize.REGULAR,
+                                            color = TextPrimary,
+                                            textAlign = TextAlign.Center,
+                                            modifier = Modifier.fillMaxWidth().alpha(Alpha.HALF)
+                                        )
+                                    }
+
                                 }
                             },
                             onError = {}
